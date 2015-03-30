@@ -14,21 +14,53 @@ namespace Taskmatics.EnzoUnified.FlightTracker
         {
             var parameters = (FlightNotificationParameters)Context.Parameters;
 
+            Context.Logger.Log("Run configuration:\r\n\tArrival Airport Code: {0}\r\n\tFlight Record Limit: {1}\r\n\tRecipient Phone Number: {2}",
+                parameters.AirportCode,
+                parameters.RecordLimiter ?? 10,
+                parameters.MobileNumber);
+
+            Context.Logger.Log("Retrieving recently arrived flights to {0}.", parameters.AirportCode);
+
             // Get the recently arrived flights to the configured airport code.
             var arrivedFlights = GetArrivedFlights(parameters);
+
+            Context.Logger.Log("Retrieved {0} recently arrived flights to {1}.", arrivedFlights.Count, parameters.AirportCode);
 
             // Compare with cached data.
             var newFlights = FlightCache.FilterNewArrivals(arrivedFlights);
 
+            Context.Logger.Log("After comparing with cache, {0} flights have not been dispatched to recipients.", newFlights);
+
             // Send the newly arrived flights to the SMS number configured.
             if (newFlights.Count > 0)
             {
+                Context.Logger.Log("Sending the following new arrivals to phone number {0}:\r\n\t{1}", parameters.MobileNumber,
+                    String.Join("\r\n\t", newFlights.Select(flight => flight.ToString())));
+
                 var results = SendArrivedFlightsViaSMS(newFlights, parameters);
 
                 // If the message goes out successfully, update the cache so they won't go out again next time.
                 if (results.All(result => String.IsNullOrWhiteSpace(result.ErrorCode)))
+                {
+                    Context.Logger.Log("Updating cache with new arrival flight data.");
                     FlightCache.SaveFlightsToCache(newFlights);
+                }
+                else
+                {
+                    var logBuilder = new StringBuilder();
+                    foreach (var smsResult in results.Where(result => !String.IsNullOrWhiteSpace(result.ErrorCode)))
+                        logBuilder.AppendFormat("Send to {0} failed with error code {0}: {1}\r\n\t",
+                            smsResult.ToPhoneNumber,
+                            smsResult.ErrorCode,
+                            smsResult.ErrorMessage);
+
+                    Context.Logger.Log("The following SMS operations failed to be sent:\r\n\t{0}", logBuilder);
+                }
             }
+            else
+                Context.Logger.Log("SMS phase skipped due to no new arrivals.");
+
+            Context.Logger.Log("Job execution complete.");
         }
 
         private List<ArrivedFlightInfo> GetArrivedFlights(FlightNotificationParameters parameters)
