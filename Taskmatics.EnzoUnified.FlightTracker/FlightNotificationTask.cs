@@ -29,7 +29,7 @@ namespace Taskmatics.EnzoUnified.FlightTracker
             // Compare with cached data.
             var newFlights = FlightCache.FilterNewArrivals(arrivedFlights);
 
-            Context.Logger.Log("After comparing with cache, {0} flights have not been dispatched to recipients.", newFlights);
+            Context.Logger.Log("After comparing with cache, {0} flights have not been dispatched to recipients.", newFlights.Count);
 
             // Send the newly arrived flights to the SMS number configured.
             if (newFlights.Count > 0)
