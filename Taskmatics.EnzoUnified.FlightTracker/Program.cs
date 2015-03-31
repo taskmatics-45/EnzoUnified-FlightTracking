@@ -9,9 +9,9 @@ namespace Taskmatics.EnzoUnified.FlightTracker
         {
             var parameters = new FlightNotificationParameters
             {
-                EnzoConnectionString = "Server=data.enzounified.com,9553; Database=BSC; Uid=taskmatics; Pwd=T@sk00!",
-                AirportCode = "BDL",
-                MobileNumber = "2038167590"
+                EnzoConnectionString = "Server=<your server here>; Database=<your DB name here>; Uid=<your uid>; Pwd=<your pwd>",
+                AirportCode = "LAX",
+                MobileNumber = "1235551212"
             };
 
             var harness = new TaskHarness<FlightNotificationTask>(parameters);
