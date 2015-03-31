@@ -112,18 +112,18 @@ namespace Taskmatics.EnzoUnified.FlightTracker
                     while (reader.Read())
                         results.Add(new SendSmsResult
                         {
-                            MessageSid = (String)reader["Sid"],
-                            AccountSid = (String)reader["AccountSid"],
-                            ToPhoneNumber = (String)reader["To"],
-                            FromPhoneNumber = (String)reader["From"],
-                            Status = (String)reader["Status"],
-                            SegmentCount = (String)reader["NumSegments"],
+                            MessageSid = reader["Sid"] == DBNull.Value ? null : (String)reader["Sid"],
+                            AccountSid = reader["AccountSid"] == DBNull.Value ? null : (String)reader["AccountSid"],
+                            ToPhoneNumber = reader["To"] == DBNull.Value ? null : (String)reader["To"],
+                            FromPhoneNumber = reader["From"] == DBNull.Value ? null : (String)reader["From"],
+                            Status = reader["Status"] == DBNull.Value ? null : (String)reader["Status"],
+                            SegmentCount = reader["NumSegments"] == DBNull.Value ? null : (String)reader["NumSegments"],
                             SentDate = reader["DateSent"] == DBNull.Value ? null : (DateTime?)reader["DateSent"],
                             Price = (decimal)reader["Price"],
-                            Uri = new Uri((String)reader["Uri"]),
-                            Direction = (String)reader["Direction"],
-                            ErrorCode = (String)reader["ErrorCode"],
-                            ErrorMessage = (String)reader["ErrorMessage"]
+                            Uri = reader["Uri"] == DBNull.Value ? null : new Uri((String)reader["Uri"], UriKind.RelativeOrAbsolute),
+                            Direction = reader["Direction"] == DBNull.Value ? null : (String)reader["Direction"],
+                            ErrorCode = reader["ErrorCode"] == DBNull.Value ? null : (String)reader["ErrorCode"],
+                            ErrorMessage = reader["ErrorMessage"] == DBNull.Value ? null : (String)reader["ErrorMessage"]
                         });
             }
 
